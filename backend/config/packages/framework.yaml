@@ -3,6 +3,13 @@ framework:
     secret: '%env(APP_SECRET)%'
     session: false
 
+    http_client:
+        default_options:
+            retry_failed:
+                max_retries: 4
+                delay: 2000
+                multiplier: 2
+
 when@test:
     framework:
         test: true
