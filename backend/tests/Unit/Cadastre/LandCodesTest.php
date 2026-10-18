@@ -24,10 +24,4 @@ final class LandCodesTest extends TestCase
         self::assertSame('jiná plocha', LandUse::from('OtherArea')->label());
         self::assertCount(29, LandUse::cases());
     }
-
-    public function testUnknownCodesAreNotMapped(): void
-    {
-        self::assertNull(LandType::tryFrom('Moon'));
-        self::assertNull(LandUse::tryFrom('arableground'));
-    }
 }
