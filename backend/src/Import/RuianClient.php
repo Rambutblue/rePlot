@@ -100,6 +100,6 @@ final readonly class RuianClient
             throw new \RuntimeException('RÚIAN query exceeded the transfer limit.');
         }
 
-        return array_values(array_column($data['features'] ?? [], 'attributes'));
+        return array_column($data['features'] ?? [], 'attributes');
     }
 }
