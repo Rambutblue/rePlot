@@ -56,6 +56,45 @@ final readonly class CadastralAreaRepository
         );
     }
 
+    /**
+     * @return list<array{
+     *     code: int, name: string, municipality_code: ?int, municipality_name: ?string, status: string, parcel_count: int,
+     *     west: ?float, south: ?float, east: ?float, north: ?float
+     * }>
+     */
+    public function findAll(): array
+    {
+        /** @var list<array{code: int, name: string, municipality_code: ?int, municipality_name: ?string, status: string, parcel_count: int, west: ?float, south: ?float, east: ?float, north: ?float}> */
+        return $this->connection->fetchAllAssociative(
+            <<<'SQL'
+                SELECT a.code, a.name, a.municipality_code, a.municipality_name, a.status, a.parcel_count,
+                       ST_XMin(e.box) AS west, ST_YMin(e.box) AS south, ST_XMax(e.box) AS east, ST_YMax(e.box) AS north
+                FROM cadastral_area a
+                CROSS JOIN LATERAL (SELECT ST_Transform(ST_Envelope(a.outline), 4326)::box2d AS box) e
+                ORDER BY a.name, a.code
+                SQL,
+        );
+    }
+
+    /**
+     * @return array{total: int, done: int, failed: int, pending: int, current_code: ?int, current_name: ?string}
+     */
+    public function importProgress(): array
+    {
+        /** @var array{total: int, done: int, failed: int, pending: int, current_code: ?int, current_name: ?string} */
+        return $this->connection->fetchAssociative(
+            <<<'SQL'
+                SELECT count(*) AS total,
+                       count(*) FILTER (WHERE status = 'done') AS done,
+                       count(*) FILTER (WHERE status = 'failed') AS failed,
+                       count(*) FILTER (WHERE status IN ('pending', 'importing')) AS pending,
+                       (SELECT code FROM cadastral_area WHERE status = 'importing' LIMIT 1) AS current_code,
+                       (SELECT name FROM cadastral_area WHERE status = 'importing' LIMIT 1) AS current_name
+                FROM cadastral_area
+                SQL,
+        );
+    }
+
     public function markImporting(int $code): void
     {
         $this->connection->executeStatement(
