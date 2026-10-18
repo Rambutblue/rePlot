@@ -1,3 +1,16 @@
+x-backend: &backend
+  image: replot-backend
+  build:
+    context: .
+    dockerfile: backend/Dockerfile
+  environment:
+    DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?serverVersion=17&charset=utf8
+    IMPORT_DISTRICT: ${IMPORT_DISTRICT}
+    IMPORT_CADASTRAL_AREAS: ${IMPORT_CADASTRAL_AREAS}
+  depends_on:
+    migrate:
+      condition: service_completed_successfully
+
 services:
   db:
     image: postgis/postgis:17-3.5
@@ -14,6 +27,31 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+
+  migrate:
+    <<: *backend
+    command: bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration
+    depends_on:
+      db:
+        condition: service_healthy
+
+  importer:
+    <<: *backend
+    command: bin/console app:import
+
+  php:
+    <<: *backend
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      - php
+    restart: unless-stopped
 
 volumes:
   db-data:
