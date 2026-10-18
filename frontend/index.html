@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Parcely okresu Jičín</title>
+</head>
+<body>
+  <div id="map"></div>
+
+  <div id="search" class="box">
+    <input id="search-input" type="search" placeholder="Hledat parcelu nebo k.ú., např. 1854/36 Jičín" autocomplete="off">
+    <ul id="search-results" hidden></ul>
+  </div>
+
+  <div id="status" class="box" hidden></div>
+
+  <aside id="detail" class="box" hidden>
+    <button id="detail-close" type="button" aria-label="Zavřít">×</button>
+    <div id="detail-body"></div>
+  </aside>
+
+  <div id="legend" class="box">
+    <label><input id="ortofoto" type="checkbox"> Ortofoto</label>
+    <ul id="legend-items"></ul>
+  </div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
