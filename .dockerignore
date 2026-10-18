@@ -1,0 +1,7 @@
+.git
+.claude
+.nocommit
+**/node_modules
+frontend/dist
+backend/vendor
+backend/var
