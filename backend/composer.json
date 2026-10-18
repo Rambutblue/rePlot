@@ -7,6 +7,9 @@
         "php": ">=8.5",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "doctrine/dbal": "*",
+        "doctrine/doctrine-bundle": "*",
+        "doctrine/doctrine-migrations-bundle": "*",
         "symfony/console": "8.1.*",
         "symfony/dotenv": "8.1.*",
         "symfony/flex": "^2",
@@ -14,7 +17,6 @@
         "symfony/runtime": "8.1.*",
         "symfony/yaml": "8.1.*"
     },
-    "require-dev": {},
     "config": {
         "allow-plugins": {
             "php-http/discovery": true,
