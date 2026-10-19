@@ -1,3 +1,4 @@
 .nocommit
 .env.local
 .env.*.local
+.env
