@@ -21,10 +21,10 @@ final readonly class RuianClient
      */
     public function resolve(ImportScope $scope): array
     {
-        if ($scope->districtCode !== null) {
-            $municipalities = $this->municipalities(sprintf('okres = %d', $scope->districtCode));
+        if ($scope->districtCodes !== []) {
+            $municipalities = $this->municipalities(sprintf('okres IN (%s)', implode(',', $scope->districtCodes)));
             if ($municipalities === []) {
-                throw new \RuntimeException(sprintf('District %d has no municipalities in RÚIAN.', $scope->districtCode));
+                throw new \RuntimeException(sprintf('Districts %s have no municipalities in RÚIAN.', implode(', ', $scope->districtCodes)));
             }
             $areas = $this->cadastralAreas(sprintf('obec IN (%s)', implode(',', array_keys($municipalities))));
         } else {

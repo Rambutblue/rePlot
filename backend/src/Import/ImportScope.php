@@ -8,10 +8,11 @@ final readonly class ImportScope
 {
     /**
      * @param list<int> $cadastralAreaCodes
+     * @param list<int> $districtCodes
      */
     private function __construct(
         public array $cadastralAreaCodes,
-        public ?int $districtCode,
+        public array $districtCodes,
     ) {
     }
 
@@ -26,24 +27,28 @@ final readonly class ImportScope
         }
 
         if ($codes !== []) {
-            return new self(array_values($codes), null);
+            return new self(array_values($codes), []);
         }
 
-        $district = trim($district);
-        if ($district === '') {
+        $districts = [];
+        foreach (preg_split('/[\s,;]+/', $district, -1, PREG_SPLIT_NO_EMPTY) ?: [] as $code) {
+            if (!ctype_digit($code)) {
+                throw new \InvalidArgumentException(sprintf('Invalid district code "%s" in IMPORT_DISTRICT.', $code));
+            }
+            $districts[(int) $code] = (int) $code;
+        }
+
+        if ($districts === []) {
             throw new \InvalidArgumentException('Set IMPORT_CADASTRAL_AREAS or IMPORT_DISTRICT.');
         }
-        if (!ctype_digit($district)) {
-            throw new \InvalidArgumentException(sprintf('Invalid district code "%s" in IMPORT_DISTRICT.', $district));
-        }
 
-        return new self([], (int) $district);
+        return new self([], array_values($districts));
     }
 
     public function describe(): string
     {
-        return $this->districtCode !== null
-            ? sprintf('district %d', $this->districtCode)
+        return $this->districtCodes !== []
+            ? sprintf('districts %s', implode(', ', $this->districtCodes))
             : sprintf('cadastral areas %s', implode(', ', $this->cadastralAreaCodes));
     }
 }

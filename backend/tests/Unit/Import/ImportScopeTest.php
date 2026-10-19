@@ -14,15 +14,22 @@ final class ImportScopeTest extends TestCase
     {
         $scope = ImportScope::fromEnv('', '3604');
 
-        self::assertSame(3604, $scope->districtCode);
+        self::assertSame([3604], $scope->districtCodes);
         self::assertSame([], $scope->cadastralAreaCodes);
+    }
+
+    public function testDistrictListAcceptsMixedSeparatorsAndDropsDuplicates(): void
+    {
+        $scope = ImportScope::fromEnv('', '3604, 3608;3604');
+
+        self::assertSame([3604, 3608], $scope->districtCodes);
     }
 
     public function testAreaListOverridesDistrict(): void
     {
         $scope = ImportScope::fromEnv('770141,659541', '3604');
 
-        self::assertNull($scope->districtCode);
+        self::assertSame([], $scope->districtCodes);
         self::assertSame([770141, 659541], $scope->cadastralAreaCodes);
     }
 
@@ -42,6 +49,7 @@ final class ImportScopeTest extends TestCase
         yield 'blank values' => ['  ', ' '];
         yield 'non-numeric area' => ['770141,abc', '3604'];
         yield 'non-numeric district' => ['', 'CZ0522'];
+        yield 'non-numeric district in list' => ['', '3604,abc'];
     }
 
     #[DataProvider('invalidProvider')]
